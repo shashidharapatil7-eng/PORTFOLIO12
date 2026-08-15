@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin — InsightForge</title>
+<meta name="robots" content="noindex, nofollow" />
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/admin.css" />
+</head>
+<body class="admin-body">
+<div class="bg-grid" aria-hidden="true"></div>
+
+<!-- ============ LOGIN ============ -->
+<div class="login-wrap" id="loginWrap">
+  <div class="card login-card">
+    <span class="brand-mark" style="width:44px;height:44px;font-size:1rem;">IF</span>
+    <h1>Admin sign in</h1>
+    <p class="sub">Sign in with the admin account created in your Firebase project.</p>
+    <form id="loginForm">
+      <div class="field">
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" required autocomplete="username" />
+      </div>
+      <div class="field">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" required autocomplete="current-password" />
+      </div>
+      <button class="btn btn-primary btn-block" type="submit" id="loginBtn">Sign In</button>
+      <div class="login-error" id="loginError"></div>
+    </form>
+    <div class="login-hint">No account yet? Create one from your Firebase Console → Authentication → Users. See README.md.</div>
+  </div>
+</div>
+
+<!-- ============ ADMIN SHELL ============ -->
+<div class="admin-shell hidden" id="adminShell">
+  <aside class="admin-sidebar">
+    <a href="index.html" class="brand">
+      <span class="brand-mark">IF</span>
+      <span>InsightForge<div class="brand-tagline">Admin Panel</div></span>
+    </a>
+    <nav class="admin-nav" id="adminNav">
+      <button data-panel="overview" class="active"><span class="icon">◆</span> Overview</button>
+      <button data-panel="projects"><span class="icon">▣</span> Projects</button>
+      <button data-panel="skills"><span class="icon">✦</span> Skills</button>
+      <button data-panel="certifications"><span class="icon">✔</span> Certifications</button>
+      <button data-panel="resources"><span class="icon">▤</span> Resources</button>
+      <button data-panel="experience"><span class="icon">◧</span> Experience</button>
+      <button data-panel="education"><span class="icon">◨</span> Education</button>
+      <button data-panel="resume"><span class="icon">▥</span> Resume</button>
+      <button data-panel="about"><span class="icon">◐</span> About</button>
+      <button data-panel="settings"><span class="icon">⚙</span> Settings</button>
+      <button data-panel="media"><span class="icon">▦</span> Media Library</button>
+      <button data-panel="messages"><span class="icon">✉</span> Messages</button>
+    </nav>
+    <div class="admin-sidebar-foot">
+      <a href="index.html" target="_blank" class="btn btn-secondary btn-sm btn-block" style="margin-bottom:8px;">View Site ↗</a>
+      <button class="btn btn-ghost btn-sm btn-block" id="logoutBtn">Log Out</button>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+
+    <!-- OVERVIEW -->
+    <section class="panel active" id="panel-overview">
+      <div class="admin-topbar">
+        <div><h1>Overview</h1><p>A live snapshot of everything on InsightForge. Changes here go live on the site immediately.</p></div>
+      </div>
+      <div class="draft-banner card ok" id="statusBanner"><div><span class="dot" style="background:var(--success);"></span>Connected — changes save straight to your live database.</div></div>
+      <div class="overview-grid" id="overviewStats"></div>
+      <div class="card form-card">
+        <h3>Getting started</h3>
+        <p class="sub">Recommended order for filling in the site.</p>
+        <ol style="padding-left:18px; color:var(--text-secondary); font-size:0.9rem; display:flex; flex-direction:column; gap:8px;">
+          <li>Write your bio in <strong>About</strong> and add a profile photo in <strong>Settings</strong>.</li>
+          <li>Add real work in <strong>Projects</strong> — mark 1–3 as Featured.</li>
+          <li>Add credentials in <strong>Certifications</strong> as you earn them.</li>
+          <li>Upload your latest PDF in <strong>Resume</strong>.</li>
+          <li>Fill in <strong>Experience</strong>, <strong>Education</strong>, and social links / email in <strong>Settings</strong>.</li>
+        </ol>
+        <p class="sub" style="margin-top:14px;">Every save here appears on the live site within a second or two — nothing to download or redeploy.</p>
+      </div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section class="panel" id="panel-projects">
+      <div class="admin-topbar">
+        <div><h1>Projects</h1><p>Add, edit, feature, publish or unpublish project cards.</p></div>
+        <button class="btn btn-primary" id="newProjectBtn">+ New Project</button>
+      </div>
+      <div class="data-list" id="projectList"></div>
+      <div class="card form-card hidden" id="projectForm">
+        <h3 id="projectFormTitle">New Project</h3>
+        <p class="sub">Fields left blank will show as "to be added" on the live site.</p>
+        <input type="hidden" id="pf-id" />
+        <div class="form-grid">
+          <div class="field full"><label>Title</label><input id="pf-title" /></div>
+          <div class="field full"><label>Subtitle</label><input id="pf-subtitle" placeholder="One line under the title" /></div>
+          <div class="field full"><label>Description</label><textarea id="pf-description"></textarea></div>
+          <div class="field"><label>Category</label><input id="pf-category" placeholder="e.g. Power BI, Finance, AI" /></div>
+          <div class="field"><label>Status</label>
+            <select id="pf-status">
+              <option>Planned</option><option>In Progress</option><option>Live</option><option>Complete</option>
+            </select>
+          </div>
+          <div class="field"><label>Start date</label><input id="pf-start" placeholder="e.g. Jan 2026" /></div>
+          <div class="field"><label>End date</label><input id="pf-end" placeholder="e.g. Mar 2026, or leave blank" /></div>
+          <div class="field full"><label>Tools used (press Enter to add)</label>
+            <div class="tag-input-row"><input id="pf-tool-input" placeholder="e.g. Power BI" /><button class="btn btn-secondary btn-sm" id="pf-tool-add" type="button">Add</button></div>
+            <div class="chip-list" id="pf-tools-list"></div>
+          </div>
+          <div class="field full"><label>Tags (press Enter to add)</label>
+            <div class="tag-input-row"><input id="pf-tag-input" placeholder="e.g. finance, dashboard" /><button class="btn btn-secondary btn-sm" id="pf-tag-add" type="button">Add</button></div>
+            <div class="chip-list" id="pf-tags-list"></div>
+          </div>
+          <div class="field"><label>GitHub link</label><input id="pf-github" placeholder="https://github.com/..." /></div>
+          <div class="field"><label>Live demo link</label><input id="pf-demo" placeholder="https://..." /></div>
+          <div class="field"><label>Dashboard link</label><input id="pf-dashboard" placeholder="https://..." /></div>
+          <div class="field"><label>Resource folder (Drive/OneDrive)</label><input id="pf-resourceFolder" placeholder="https://..." /></div>
+          <div class="field full">
+            <label>Cover image</label>
+            <label class="file-drop" id="pf-cover-drop"><input type="file" id="pf-cover-file" accept="image/*" /><div class="prev" id="pf-cover-prev"></div><span id="pf-cover-label">Click or drag an image here</span></label>
+          </div>
+          <div class="field full">
+            <label>Screenshots (multiple)</label>
+            <label class="file-drop" id="pf-shots-drop"><input type="file" id="pf-shots-file" accept="image/*" multiple /><div class="prev">▤</div><span id="pf-shots-label">Click or drag images here — adds to the gallery</span></label>
+            <div class="media-grid" id="pf-shots-grid" style="margin-top:10px;"></div>
+          </div>
+          <div class="checkbox-row full"><input type="checkbox" id="pf-featured" /> <label for="pf-featured">Featured project</label></div>
+          <div class="checkbox-row full"><input type="checkbox" id="pf-published" checked /> <label for="pf-published">Published (visible on live site)</label></div>
+        </div>
+        <div class="upload-progress hidden" id="pf-progress"><div class="bar"><div class="fill" id="pf-progress-fill"></div></div><span id="pf-progress-label"></span></div>
+        <div class="form-actions">
+          <button class="btn btn-primary" id="pf-save">Save Project</button>
+          <button class="btn btn-ghost" id="pf-cancel">Cancel</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SKILLS -->
+    <section class="panel" id="panel-skills">
+      <div class="admin-topbar">
+        <div><h1>Skills</h1><p>Group skills into categories. Drag categories with the arrows to reorder.</p></div>
+        <button class="btn btn-primary" id="newSkillCatBtn">+ New Category</button>
+      </div>
+      <div id="skillCategories"></div>
+      <div class="card form-card hidden" id="skillCatForm">
+        <h3 id="skillCatFormTitle">New Category</h3>
+        <input type="hidden" id="sc-id" />
+        <div class="field full"><label>Category name</label><input id="sc-name" placeholder="e.g. Business Analytics" /></div>
+        <div class="form-actions">
+          <button class="btn btn-primary" id="sc-save">Save Category</button>
+          <button class="btn btn-ghost" id="sc-cancel">Cancel</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CERTIFICATIONS -->
+    <section class="panel" id="panel-certifications">
+      <div class="admin-topbar">
+        <div><h1>Certifications</h1><p>Add credentials as you earn them.</p></div>
+        <button class="btn btn-primary" id="newCertBtn">+ New Certification</button>
+      </div>
+      <div class="data-list" id="certList"></div>
+      <div class="card form-card hidden" id="certForm">
+        <h3 id="certFormTitle">New Certification</h3>
+        <input type="hidden" id="cf-id" />
+        <div class="form-grid">
+          <div class="field full"><label>Title</label><input id="cf-title" /></div>
+          <div class="field"><label>Issuer</label><input id="cf-issuer" /></div>
+          <div class="field"><label>Date</label><input id="cf-date" placeholder="e.g. March 2026" /></div>
+          <div class="field"><label>Credential ID</label><input id="cf-credentialId" /></div>
+          <div class="field"><label>Verification link</label><input id="cf-verifyLink" placeholder="https://..." /></div>
+          <div class="field full">
+            <label>Certificate image</label>
+            <label class="file-drop"><input type="file" id="cf-image-file" accept="image/*" /><div class="prev" id="cf-image-prev"></div><span id="cf-image-label">Click to upload</span></label>
+          </div>
+          <div class="field full">
+            <label>Certificate PDF (optional)</label>
+            <label class="file-drop"><input type="file" id="cf-pdf-file" accept="application/pdf" /><div class="prev">📄</div><span id="cf-pdf-label">Click to upload</span></label>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" id="cf-save">Save Certification</button>
+          <button class="btn btn-ghost" id="cf-cancel">Cancel</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESOURCES -->
+    <section class="panel" id="panel-resources">
+      <div class="admin-topbar">
+        <div><h1>Resources</h1><p>Unlimited entries across six categories.</p></div>
+      </div>
+      <div class="resource-tabs" id="adminResourceTabs"></div>
+      <div class="admin-topbar" style="margin-top:6px;">
+        <div></div>
+        <button class="btn btn-primary btn-sm" id="newResourceBtn">+ New Item</button>
+      </div>
+      <div class="data-list" id="resourceAdminList"></div>
+      <div class="card form-card hidden" id="resourceForm">
+        <h3 id="resourceFormTitle">New Resource</h3>
+        <input type="hidden" id="rf-id" />
+        <input type="hidden" id="rf-category" />
+        <div class="form-grid">
+          <div class="field full"><label>Title</label><input id="rf-title" /></div>
+          <div class="field full"><label>Description</label><textarea id="rf-description"></textarea></div>
+          <div class="field full"><label>Link</label><input id="rf-link" placeholder="https://..." /></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" id="rf-save">Save Resource</button>
+          <button class="btn btn-ghost" id="rf-cancel">Cancel</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXPERIENCE -->
+    <section class="panel" id="panel-experience">
+      <div class="admin-topbar">
+        <div><h1>Experience</h1><p>Shown as a timeline inside the About page.</p></div>
+        <button class="btn btn-primary" id="newExpBtn">+ New Entry</button>
+      </div>
+      <div class="data-list" id="expList"></div>
+      <div class="card form-card hidden" id="expForm">
+        <h3 id="expFormTitle">New Experience</h3>
+        <input type="hidden" id="ef-id" />
+        <div class="form-grid">
+          <div class="field full"><label>Role / Title</label><input id="ef-title" /></div>
+          <div class="field full"><label>Company / Organization</label><input id="ef-company" /></div>
+          <div class="field"><label>Start</label><input id="ef-start" placeholder="e.g. Jun 2025" /></div>
+          <div class="field"><label>End</label><input id="ef-end" placeholder="leave blank for Present" /></div>
+          <div class="field full"><label>Description</label><textarea id="ef-description"></textarea></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" id="ef-save">Save</button>
+          <button class="btn btn-ghost" id="ef-cancel">Cancel</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- EDUCATION -->
+    <section class="panel" id="panel-education">
+      <div class="admin-topbar">
+        <div><h1>Education</h1><p>Shown as a timeline inside the About page.</p></div>
+        <button class="btn btn-primary" id="newEduBtn">+ New Entry</button>
+      </div>
+      <div class="data-list" id="eduList"></div>
+      <div class="card form-card hidden" id="eduForm">
+        <h3 id="eduFormTitle">New Education</h3>
+        <input type="hidden" id="edf-id" />
+        <div class="form-grid">
+          <div class="field full"><label>Institution</label><input id="edf-institution" /></div>
+          <div class="field"><label>Degree</label><input id="edf-degree" /></div>
+          <div class="field"><label>Field of study</label><input id="edf-field" /></div>
+          <div class="field"><label>Start</label><input id="edf-start" placeholder="e.g. 2025" /></div>
+          <div class="field"><label>End</label><input id="edf-end" placeholder="e.g. 2029, or leave blank" /></div>
+          <div class="field full"><label>Description</label><textarea id="edf-description"></textarea></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" id="edf-save">Save</button>
+          <button class="btn btn-ghost" id="edf-cancel">Cancel</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESUME -->
+    <section class="panel" id="panel-resume">
+      <div class="admin-topbar"><div><h1>Resume</h1><p>Upload or replace your resume PDF — the Download button on the site always uses the latest.</p></div></div>
+      <div class="card form-card">
+        <label class="file-drop"><input type="file" id="resume-file" accept="application/pdf,.pdf" /><div class="prev" id="resume-prev">📄</div><span id="resume-label">Click to upload resume PDF</span></label>
+        <div class="field" style="margin-top:16px;"><label>Last updated (shown on site)</label><input id="resume-updated" placeholder="e.g. August 2026" /></div>
+        <div class="upload-progress hidden" id="resume-progress"><div class="bar"><div class="fill" id="resume-progress-fill"></div></div><span id="resume-progress-label"></span></div>
+        <div class="form-actions"><button class="btn btn-primary" id="resume-save">Save</button></div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="panel" id="panel-about">
+      <div class="admin-topbar"><div><h1>About</h1><p>Write your biography. Separate paragraphs with a blank line.</p></div></div>
+      <div class="card form-card">
+        <div class="field full"><textarea id="about-bio" style="min-height:260px;"></textarea></div>
+        <div class="form-actions"><button class="btn btn-primary" id="about-save">Save Bio</button></div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="panel" id="panel-settings">
+      <div class="admin-topbar"><div><h1>Website Settings</h1><p>Global identity, contact links, and appearance.</p></div></div>
+
+      <div class="card form-card">
+        <h3>Identity</h3>
+        <div class="form-grid">
+          <div class="field"><label>Site name</label><input id="set-siteName" /></div>
+          <div class="field"><label>Logo mark (2–3 letters)</label><input id="set-logoMark" maxlength="3" /></div>
+          <div class="field"><label>Tagline</label><input id="set-tagline" /></div>
+          <div class="field"><label>Accent color</label><input id="set-accent" type="color" style="height:44px;padding:4px;" /></div>
+          <div class="field full"><label>Full name</label><input id="set-name" /></div>
+          <div class="field full"><label>Role line (shown under hero)</label><input id="set-role" /></div>
+          <div class="field full"><label>Hero intro paragraph</label><textarea id="set-intro"></textarea></div>
+          <div class="field full">
+            <label>Profile photo</label>
+            <label class="file-drop"><input type="file" id="set-photo-file" accept="image/*" /><div class="prev" id="set-photo-prev"></div><span id="set-photo-label">Click to upload</span></label>
+          </div>
+          <div class="field full">
+            <label>Favicon</label>
+            <label class="file-drop"><input type="file" id="set-favicon-file" accept="image/*" /><div class="prev" id="set-favicon-prev"></div><span id="set-favicon-label">Click to upload</span></label>
+          </div>
+        </div>
+        <div class="subsection">
+          <h4>Contact & social</h4>
+          <div class="form-grid">
+            <div class="field"><label>Email</label><input id="set-email" placeholder="you@example.com" /></div>
+            <div class="field"><label>Phone</label><input id="set-phone" placeholder="+91 ..." /></div>
+            <div class="field full"><label>Location</label><input id="set-location" placeholder="e.g. Manipal, Karnataka" /></div>
+            <div class="field"><label>LinkedIn URL</label><input id="set-linkedin" /></div>
+            <div class="field"><label>GitHub URL</label><input id="set-github" /></div>
+            <div class="field"><label>Twitter / X URL</label><input id="set-twitter" /></div>
+          </div>
+        </div>
+        <div class="subsection">
+          <h4>SEO</h4>
+          <div class="field full"><label>Meta description</label><textarea id="set-seo"></textarea></div>
+        </div>
+        <div class="form-actions"><button class="btn btn-primary" id="settings-save">Save Settings</button></div>
+      </div>
+
+      <div class="card form-card">
+        <h3>Change admin password</h3>
+        <p class="sub">Requires your current password (Firebase Authentication).</p>
+        <div class="form-grid">
+          <div class="field"><label>Current password</label><input type="password" id="set-curpass" /></div>
+          <div class="field"><label>New password</label><input type="password" id="set-newpass" /></div>
+        </div>
+        <div class="form-actions"><button class="btn btn-secondary" id="set-pass-save">Update Password</button></div>
+      </div>
+    </section>
+
+    <!-- MEDIA LIBRARY -->
+    <section class="panel" id="panel-media">
+      <div class="admin-topbar">
+        <div><h1>Media Library</h1><p>Every image uploaded across the Admin Panel, pulled live from Storage.</p></div>
+        <button class="btn btn-secondary btn-sm" id="refreshMediaBtn">Refresh</button>
+      </div>
+      <div class="media-grid" id="mediaGrid"></div>
+    </section>
+
+    <!-- MESSAGES -->
+    <section class="panel" id="panel-messages">
+      <div class="admin-topbar"><div><h1>Contact Messages</h1><p>Messages submitted through the live Contact form, from any visitor.</p></div></div>
+      <div id="messagesList"></div>
+    </section>
+
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script src="js/firebase-config.js"></script>
+<script type="module" src="js/firebase-init.js"></script>
+<script src="js/store.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>
